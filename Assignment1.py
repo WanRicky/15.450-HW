@@ -7,6 +7,7 @@ import math
 import random
 
 # creator: Ruiqin Wan, 2021.2.27
+# github: https://github.com/WanRicky/15.450-HW1/blob/main/Assignment1.py
 # note: 1. if you want to run the codes, please change the calling of "get_data" functions in q3_a\b\c\de
 # 2. if you want to see the figures, please delete the "#" in front of the line begin with "plt"
 
@@ -27,9 +28,11 @@ def q3_a():
 
 
 def q3_b():
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("q3_b begin")
     df = get_data("data/HW1_F-F_Research_Data_Factors.xlsx", "q3")
     df.index = pd.to_datetime(df.index)
+    df = df.head(df.index.get_loc('2021-01-01'))
     mkt_rf_mean = df["Mkt-RF"].mean()
     mkt_rf_std = df["Mkt-RF"].std()
     print("mean = ", mkt_rf_mean)
@@ -55,6 +58,7 @@ def q3_b():
 
 
 def q3_c():
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("q3_c begin")
     df = get_data("data/HW1_F-F_Research_Data_Factors.xlsx", "q3")
     df.index = pd.to_datetime(df.index)
@@ -83,12 +87,13 @@ def q3_c():
     # IID Model
     iid_list = []
     for i in range(0, 85, 1):
-        iid_list.append(random.gauss(mkt_rf_mean, mkt_rf_std))
+        # iid_list.append(random.gauss(mkt_rf_mean, mkt_rf_std))
+        iid_list.append(mkt_rf_mean)
     df_after = df.tail(len(df.index) - df.index.get_loc('2014-01-01'))
     df_after["Mkt-RF-estimate"] = iid_list
-    # plt.plot(df.index[-85:], list(df_after["Mkt-RF"]), 'r')
-    # plt.plot(df.index[-85:], iid_list, 'b')
-    # plt.show()
+    plt.plot(df.index[-85:], list(df_after["Mkt-RF"]), 'r')
+    plt.plot(df.index[-85:], iid_list, 'b')
+    plt.show()
     mse_idd = 0
     for i in range(0, 85, 1):
         mse_idd += (list(df_after["Mkt-RF"])[i] - iid_list[i])**2
@@ -102,9 +107,9 @@ def q3_c():
     for i in range(0, 85, 1):
         # ols_list.append(a0 + a1 * df_previous_one_day.iloc[i].at["Mkt-RF"] + random.gauss(0, ols_std))
         ols_list.append(a0 + a1 * df_previous_one_day.iloc[i].at["Mkt-RF"])
-    # plt.plot(df.index[-85:], list(df_after["Mkt-RF"]), 'r')
-    # plt.plot(df.index[-85:], ols_list, 'b')
-    # plt.show()
+    plt.plot(df.index[-85:], list(df_after["Mkt-RF"]), 'r')
+    plt.plot(df.index[-85:], ols_list, 'b')
+    plt.show()
     mse_ols = 0
     for i in range(0, 85, 1):
         mse_ols += (list(df_after["Mkt-RF"])[i] - ols_list[i]) ** 2
@@ -143,7 +148,6 @@ def q3_e():  # not in use, turn to q3_de
         iid_list.append(random.gauss(mkt_rf_mean, mkt_rf_std))
     df_after = df.tail(len(df.index) - df.index.get_loc('2014-01-01'))
     df_after["Mkt-RF-estimate"] = iid_list
-    # print(df_after)
     #plt.plot(df.index[-85:], list(df_after["Mkt-RF"]), 'r')
     #plt.plot(df.index[-85:], iid_list, 'b')
     #plt.show()
@@ -154,12 +158,12 @@ def q3_e():  # not in use, turn to q3_de
     print("iid_2014-01: ", iid_list[0])
     print("mse_idd = ", mse_idd)
 
-
     # OLS Model
     ols_list = []
     df_previous_one_day = df.tail(len(df.index) - df.index.get_loc('2014-01-01') + 1)
     print(df_previous_one_day)
     for i in range(0, 85, 1):
+        # We do not have to deliberately add a epsilon to the prediction results.
         # ols_list.append(a0 + a1 * df_previous_one_day.iloc[i].at["Mkt-RF"] + random.gauss(0, ols_std))
         ols_list.append(a0 + a1 * df_previous_one_day.iloc[i].at["Mkt-RF"])
     #plt.plot(df.index[-85:], list(df_after["Mkt-RF"]), 'r')
@@ -174,7 +178,8 @@ def q3_e():  # not in use, turn to q3_de
 
 
 def q3_de():  # the result of (d) is contained in the first result in (e), so I put them together.
-              # the iid_2014-01 and ar_2014-01 is the result of (d)
+    # the iid_2014-01 and ar_2014-01 is the result of (d)
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("q3_de begin")
     df = get_data("data/HW1_F-F_Research_Data_Factors.xlsx", "q3")
     df.index = pd.to_datetime(df.index)
@@ -199,17 +204,17 @@ def q3_de():  # the result of (d) is contained in the first result in (e), so I 
         a1 = fit.params[1]
         ols_std = fit.resid.std()
 
-        iid_list.append(random.gauss(mkt_rf_mean, mkt_rf_std))
+        # iid_list.append(random.gauss(mkt_rf_mean, mkt_rf_std))
+        iid_list.append(mkt_rf_mean)
 
         df_previous_one_day = df.tail(len(df.index) - (start_num + start_num_i) + 1)
         ar_list.append(a0 + a1 * df_previous_one_day.iloc[0].at["Mkt-RF"])
 
     df_after = df.tail(len(df.index) - df.index.get_loc('2014-01-01'))
     df_after["Mkt-RF-estimate"] = iid_list
-    # print(df_after)
-    # plt.plot(df.index[-85:], list(df_after["Mkt-RF"]), 'r')
-    # plt.plot(df.index[-85:], iid_list, 'b')
-    # plt.show()
+    plt.plot(df.index[-85:], list(df_after["Mkt-RF"]), 'r')
+    plt.plot(df.index[-85:], iid_list, 'b')
+    plt.show()
     mse_idd = 0
     for i in range(0, 85, 1):
         mse_idd += (list(df_after["Mkt-RF"])[i] - iid_list[i]) ** 2
@@ -226,7 +231,6 @@ def q3_de():  # the result of (d) is contained in the first result in (e), so I 
     mse_ar /= 85
     print("ar_2014-01: ", ar_list[0])
     print("mse_ar = ", mse_ar)
-
 
 
 q3_a()
